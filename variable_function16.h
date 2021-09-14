@@ -75,11 +75,8 @@ std::vector<std::vector<double>>  w1, w2, w3, w4, t1, t2, t3,t4, cfd1, cfd2,cfd3
 void base_line(int npoints, std::vector<double>& w, int m_inoise)
 {
 	double mean =0;
-
 	for(int j = 0; j < m_inoise; j++){mean += w[j];}
-	
 	mean = mean/m_inoise;
-
 	for(int j = 0; j < npoints; j++){w[j] = w[j]- mean;}
 } 
 
@@ -88,75 +85,40 @@ bool pulse_baseline(std::vector<double> w, std::pair<double, double>& baseline, 
 {
 
   baseline = std::make_pair(-1, -1);
-
   noise_rms = std::make_pair(-1, -1);
-
   double mean = 0.0;
-
   double strd = 0.0;
-
   for (int j = 0; j < m_inoise; j++) mean += w[j];
-
   mean = mean / m_inoise;
-
   for (int i = 0; i < m_inoise; ++i) strd += pow(w[i] - mean, 2);
-
   strd = sqrt(strd / m_inoise);
-
   double limit1 = ceil((mean - 8*strd)*1000)/1000;
-
   double limit2 = ceil((mean + 8*strd)*1000)/1000;
-
   int bins = ceil(16*strd*1000);
-
-  TH1D* noise = new TH1D("PulseNoise", "PulseNoise", bins, limit1, limit2);
-
-  for (int i = 0; i<m_inoise; i++) noise->Fill(w[i]);
-
+  TH1D* noise = new TH1D("PulseNoise", "PulseNoise", bins, limit1, limit2);\
+  for (int i = 0; i<m_inoise; i++) noise->Fill(w[i]);\
   double m = 0.0;
-
   double dm = 0.0;
-
   double sigma = 0.0;
-
   double dsigma = 0.0;
-
   if (noise->Integral()>0)
-
      {
-
       double mx = noise->GetMean();
-
       double rms = noise->GetRMS();
-
       double rmin = mx - 3 * rms;
-
       double rmax = mx + 3 * rms;
-
       TF1* mygau = new TF1("mygau", "gaus", rmin, rmax);
-
       noise->Fit(mygau,"Q0");
-
       m = mygau->GetParameter(1);
-
       dm = mygau->GetParError(1);
-
       sigma = sqrt(mygau->GetParameter(2));
-
       dsigma = 0.5*pow(mygau->GetParameter(2), -0.5)*mygau->GetParError(2);
-
       mygau->Delete();
-
      }
-
   noise->Delete();
-
   baseline = std::make_pair(m, dm);
-
   noise_rms = std::make_pair(sigma, dsigma);
-
   return true;
-
 }
 
 double pulse_max( int npoints, std::vector<double> w, int inoise){ // number of data points in event, voltage vector,
@@ -294,11 +256,6 @@ double time_max( int npoints, std::vector<double> t, std::vector<double> w, int 
     return tmax;
 }
 
-
-
-
-
-
 double pulse_area( int npoints, std::vector<double> t, std::vector<double> w, int inoise){// number of data points in event, time vector, voltage vector, termination resisitace in ohms, effective gain from amplifier(s)
 
     double pulse_area = 0.0, time_difference, pmax =0; int imax =  0, istart = 0, iend = 0; // collected charge, size of time bins; pulse max, index of pulse max, start and end. Start and and end defined as index of first points before and after max that are less than or equal to zero.
@@ -316,23 +273,17 @@ double pulse_area( int npoints, std::vector<double> t, std::vector<double> w, in
     return pulse_area; // collected charge in Coulombs, assuming termination is in ohms and voltage is in volts, time is in seconds
 }
 
-
 double rise_int( double x1, double y1, double x2, double y2, double y3){
     double m, x3;
-    
     m = (y2 - y1) / (x2 - x1);
-    
     x3 = ( y3 - y1 ) / m + x1;
-    
     return x3;
 }
 
 double cfd_index(int npoints, int fraction, std::vector<double> t, std::vector<double> w){
     // function to calculate index of constant fraction - not truly a constant fraction discriminator
-    
     double pmax = 0, time_fraction = 0;
     int imax = 0, ifraction =0;
-    
     // find index of pulse maxima
     for( int j = 0; j < npoints; j++){
         if(w[j] > pmax){
@@ -340,14 +291,12 @@ double cfd_index(int npoints, int fraction, std::vector<double> t, std::vector<d
             pmax = w[j];
         }
     }
-    
     for( int j = imax; j>-1; j--){
         if(w[j] <= pmax*double(fraction)/100){
             ifraction = j;              //find index of first point before constant fraction of pulse
             time_fraction = t[j];
             break;
         }
-        
     }
     time_fraction = time_fraction + (t[ifraction+1] - t[ifraction])* (pmax*double(fraction)/100 - w[ifraction]) /(w[ifraction+1] - w[ifraction]);
     return time_fraction;
@@ -355,10 +304,8 @@ double cfd_index(int npoints, int fraction, std::vector<double> t, std::vector<d
 
 double cfd_index_discrete(int npoints, int fraction, std::vector<double> t, std::vector<double> w){
     // function to calculate index of constant fraction - not truly a constant fraction discriminator
-    
     double pmax = 0, time_fraction = 0;
     int imax = 0, ifraction =0;
-    
     // find index of pulse maxima
     for( int j = 0; j < npoints; j++){
         if(w[j] > pmax){
@@ -366,7 +313,6 @@ double cfd_index_discrete(int npoints, int fraction, std::vector<double> t, std:
             pmax = w[j];
         }
     }
-    
     for( int j = imax; j>-1; j--){
         if(w[j] <= pmax*double(fraction)/100){
             ifraction = j;              //find index of first point before constant fraction of pulse
@@ -379,7 +325,6 @@ double cfd_index_discrete(int npoints, int fraction, std::vector<double> t, std:
     
     if (time_fraction  - t[ifraction] <= (t[ifraction+1] - t[ifraction]/2.0) ){ time_fraction = t[ifraction];
     }else {time_fraction =  t[ifraction + 1];}
-    
     return time_fraction;
 }
 
@@ -402,13 +347,8 @@ double rise_time( int npoints, std::vector<double> t, std::vector<double> w, dou
     double rise{0}, pmax =0, lowerval = 0, upperval = 0, m1=0, m2=0, tbottom =0, ttop=0;
     int imax=0, itop = 0, ibottom = 0;
     bool ten=true, ninety=true;
-
-    
-    
-    for( int j = 0; j < npoints; j++)
-    {
-        if(w[j] > pmax)
-        {
+    for( int j = 0; j < npoints; j++){
+        if(w[j] > pmax){
             imax = j;
             pmax = w[j];
             lowerval = w[j]*bottom;
@@ -416,43 +356,31 @@ double rise_time( int npoints, std::vector<double> t, std::vector<double> w, dou
         }
     } // find index of max, pulse max, and the amplitudes at 10%,90% of pmax
     
-    for( int j = imax; j > -1; j--)
-    {
-        if(ninety && w[j]<upperval)
-        {
+    for( int j = imax; j > -1; j--){
+        if(ninety && w[j]<upperval){
             itop=j;     //find the index right below 90%
             ninety = false;
         }
-        
-        if(ten && w[j]<lowerval)
-        {
+        if(ten && w[j]<lowerval){
             ibottom=j;      //find the index right below 10%
             ten = false;
         }
-        
         if( !ten && !ninety ){
             break;
         }
     }
-    
     tbottom = rise_int( t[ibottom], w[ibottom], t[ibottom+1], w[ibottom + 1], lowerval);
     ttop = rise_int( t[itop], w[itop], t[itop + 1], w[itop + 1], upperval);
     rise = ttop - tbottom; // rise
     return rise;
 }
 
-
-
-
 double th_t0( int npoints, std::vector<double> t, std::vector<double> w, double thresh){ // number of data points in event, time vector, voltage vector
     // function to calculate time of threshold crossing
     // would be nice to add linear (or better) interpolation
     double t0, pmax =0;
     int imax=0, itop = 0;
-    
-    
-    for( int j = 0; j < npoints; j++)
-    {
+    for( int j = 0; j < npoints; j++){
         if(w[j] > pmax)
         {
             imax = j;

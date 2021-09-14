@@ -173,7 +173,7 @@ void analyze(const char* path, int ch1, int ch2, int ch3, int ch4, int nBoards =
                rms2.push_back( noise_rms(points, w2V, m_inoise) );
                pulse_area2.push_back( pulse_area(points, t2V, w2V, m_inoise) );
                rise2_1040.push_back( rise_time(points, t2V, w2V, 0.1, 0.4) );
-               rise2_1090.push_back(rise_time(points, w2V, t2V,0.10,0.9 ) );
+               rise2_1090.push_back(rise_time(points, t2V, w2V,0.10,0.9 ) );
                dvdt2.push_back( pulse_dvdt_cfd(points, 20, 1, t2V, w2V) );
                t02.push_back(th_t0(points, t2V, w2V,5) );
             }
@@ -204,7 +204,7 @@ void analyze(const char* path, int ch1, int ch2, int ch3, int ch4, int nBoards =
                rms4.push_back( noise_rms(points, w4V, m_inoise) );
                pulse_area4.push_back( pulse_area(points, t4V, w4V, m_inoise) );
                rise4_1040.push_back( rise_time(points, t4V, w4V, 0.1, 0.4) );
-               rise4_1090.push_back( rise_time(points, w4V, t4V,0.10,0.9 ) );
+               rise4_1090.push_back( rise_time(points, t4V, w4V,0.10,0.9 ) );
                dvdt4.push_back( pulse_dvdt_cfd(points, 20, 1, t4V, w4V) );
                t04.push_back(th_t0(points,t4V, w4V,5) );
            //    for(int i = 0; i < points; i++){w4[i] = -1.0*w4[i]; wbase4[i]=-1.0*wbase4[i];}
