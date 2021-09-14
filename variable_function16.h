@@ -68,8 +68,8 @@ std::vector<double>  pmax2, tmax2, rise2_1040, rise2_1090, pulse_area2, rms2, dv
 std::vector<double>  pmax3, tmax3, rise3_1040, rise3_1090, pulse_area3, rms3, dvdt3,  t04;
 std::vector<double>  pmax4, tmax4, rise4_1040, rise4_1090, pulse_area4, rms4, dvdt4,  t05;
 std::vector<double>  pmax5, tmax5, rise5_1040, rise5_1090, pulse_area5, rms5, dvdt5,  t06;
-std::vector<double> w1V, w2V,w3V, w4V, t1V, t2V, t3V, t4V, wbase1V, wbase2V, wbase3V,wbase4V, cfd1V, cfd2V, cfd3V, cfd4V;
-std::vector<std::vector<double>>  w1, w2, w3, w4, t1, t2, t3,t4, cfd1, cfd2,cfd3, cfd4, wbase0, wbase1, wbase2, wbase3, wbase4, wbase5;
+std::vector<double> w1V, w2V,w3V, w4V, t1V, t2V, t3V, t4V, wbase1V, wbase2V, wbase3V,wbase4V, cfd1, cfd2, cfd3, cfd4;
+std::vector<std::vector<double>>  w1, w2, w3, w4, t1, t2, t3,t4, wbase0, wbase1, wbase2, wbase3, wbase4, wbase5;
 /////////////////
 
 void base_line(int npoints, std::vector<double>& w, int m_inoise)
