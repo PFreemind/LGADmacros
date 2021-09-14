@@ -1,18 +1,18 @@
 #include "variable_function16.h"
 #include <TCanvas.h>
 
-void analyze(const char* path, int ch1, int ch2, int ch3, int ch4, int nBoards =4, double tscale = 1.0)
+void analyze(const char* path, const char* output, int ch1, int ch2, int ch3, int ch4, int nBoards =4, int npoints=1024, double tscale = 1.0)
 {
     TString file_name;
     TString file_ext = ".root";
     TString file;
-    std::cout<< "file name"<< std::endl;
-    std::cin >> file_name ;
-    file = file_name+=file_ext;
+   // std::cout<< "file name"<< std::endl;
+   // std::cin >> file_name ;
+    //file = ouptut;
     double a1,a2,a3,a4;
     TFile* loadFile = TFile::Open(path);
     TTree* loadTree = (TTree*) loadFile->Get("p");
-    TFile* new_file = new TFile(file.Data(),"recreate","8");
+    TFile* new_file = new TFile(output,"recreate","8");
     TTree* new_tree = new TTree("wfm","waveform_analysis");
     TH1F* amplitude1 = new TH1F("amp1",";Pulse Amplitude;Entries;Amplitude (mV)", 100, 0, 500);
     TH1F* amplitude2 = new TH1F("amp2",";Pulse Amplitude;Entries;Amplitude (mV)", 100, 0, 500);
@@ -21,10 +21,10 @@ void analyze(const char* path, int ch1, int ch2, int ch3, int ch4, int nBoards =
     int tracker = 0;
     int Entries = loadTree -> GetEntries();
     std::cout << "total events = " << Entries << endl;
-    int npoints; //loadTree->GetLeaf(w2)->GetLen();
-    std::cout <<"npoints = ?" << std::endl;
-    std::cin >> npoints;
-    std::cout <<"npoints = " << npoints << std::endl;
+ //   int npoints; //loadTree->GetLeaf(w2)->GetLen();
+  //  std::cout <<"npoints = ?" << std::endl;
+   // std::cin >> npoints;
+   // std::cout <<"npoints = " << npoints << std::endl;
     m_inoise = ceil(npoints*0.25);
     double w1f[npoints], w2f[npoints], w3f[npoints], w4f[npoints];
     double t1f[npoints], t2f[npoints], t3f[npoints], t4f[npoints];
