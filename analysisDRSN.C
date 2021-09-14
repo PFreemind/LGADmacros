@@ -151,8 +151,8 @@ void analyze(const char* path, const char* output, int ch1, int ch2, int ch3, in
                base_line(points, w1V, m_inoise);
                pmax1.push_back( pulse_max(points, w1V, m_inoise) );
                amplitude1->Fill(pulse_max(points, w1V, m_inoise));
-               for(int k =0; k<101; k++){ cfd1V.push_back( cfd_index(points, k, t1V, w1V) ); }
-               cfd1.push_back(cfd1V);
+               for(int k =0; k<101; k++){ cfd1.push_back( cfd_index(points, k, t1V, w1V) ); }
+             //  cfd1.push_back(cfd1V);
                tmax1.push_back( time_max(points, t1V, w1V, m_inoise) );
                rms1.push_back( noise_rms(points, w1V, m_inoise) );
                pulse_area1.push_back( pulse_area(points, t1V, w1V, m_inoise) );
@@ -167,8 +167,8 @@ void analyze(const char* path, const char* output, int ch1, int ch2, int ch3, in
                base_line(points, w2V, m_inoise);
                pmax2.push_back( pulse_max(points, w2V, m_inoise));
                amplitude2->Fill(pulse_max(points, w2V, m_inoise));
-               for(int k =0; k<101; k++){ cfd2V.push_back( cfd_index(points, k, t2V, w2V) ); }
-               cfd2.push_back(cfd2V);
+               for(int k =0; k<101; k++){ cfd2.push_back( cfd_index(points, k, t2V, w2V) ); }
+            //   cfd2.push_back(cfd2V);
                tmax2.push_back( time_max(points, t2V, w2V, m_inoise) );
                rms2.push_back( noise_rms(points, w2V, m_inoise) );
                pulse_area2.push_back( pulse_area(points, t2V, w2V, m_inoise) );
@@ -182,8 +182,8 @@ void analyze(const char* path, const char* output, int ch1, int ch2, int ch3, in
                int points = w3V.size();
                base_line(points, w3V, m_inoise);
                pmax3.push_back( pulse_max(points, w3V, m_inoise) );
-               for(int k =0; k<101; k++){ cfd3V.push_back( cfd_index(points, k, t3V, w3V) ); }
-               cfd3.push_back(cfd3V);
+               for(int k =0; k<101; k++){ cfd3.push_back( cfd_index(points, k, t3V, w3V) ); }
+          //     cfd3.push_back(cfd3V);
                tmax3.push_back( time_max(points, t3V, w3V, m_inoise) );
                rms3.push_back( noise_rms(points, w3V, m_inoise) );
                pulse_area3.push_back( pulse_area(points, t3V, w3V, m_inoise) );
@@ -198,8 +198,8 @@ void analyze(const char* path, const char* output, int ch1, int ch2, int ch3, in
                base_line(points, w4V, m_inoise);
             //   for(int i = 0; i < points; i++){w4V[i] = -1.0*w4V[i]; wbase4[i]=-1.0*wbase4[i];}
                pmax4.push_back( pulse_max(points, w4V, m_inoise) );
-               for(int k =0; k<101; k++){ cfd4V.push_back( cfd_index(points, k, t4V, w4V) ); }
-               cfd4.push_back(cfd4V);
+               for(int k =0; k<101; k++){ cfd4.push_back( cfd_index(points, k, t4V, w4V) ); }
+          //     cfd4.push_back(cfd4V);
                tmax4.push_back( time_max(points, t4V, w4V, m_inoise) );
                rms4.push_back( noise_rms(points, w4V, m_inoise) );
                pulse_area4.push_back( pulse_area(points, t4V, w4V, m_inoise) );
@@ -221,10 +221,10 @@ void analyze(const char* path, const char* output, int ch1, int ch2, int ch3, in
                 t2V.clear();
                 t3V.clear();
                 t4V.clear();
-                cfd1V.clear();
-                cfd2V.clear();
-                cfd3V.clear();
-                cfd4V.clear();
+         //       cfd1V.clear();
+          //      cfd2V.clear();
+          //      cfd3V.clear();
+           //     cfd4V.clear();
         }///boards loop
         //fill new tree and clear vectors
         new_tree->Fill();
