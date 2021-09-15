@@ -1,0 +1,10 @@
+
+#!/bin/bash
+export LGAD_PATH="../LGADwaveforms/TB/"
+for RUN in 0008
+do
+  #./read_binary raw/run+$RUN processed/run+$RUN+.root
+  export CMD="./read_binary ${LGAD_PATH}/raw/run${RUN} ${LGAD_PATH}/processed/run${RUN}.root"
+  echo $CMD
+  eval $CMD
+done
