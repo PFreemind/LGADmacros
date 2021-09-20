@@ -307,5 +307,46 @@ void analyze(const char* path, const char* output, int ch1, int ch2, int ch3, in
 }
 
 
+void analyze_runs ( const char  *run, ...){
+    cout<< run <<endl;
+
+    
+    va_list args;
+    va_start(args, run);
+
+       while (*run != '\0') {
+           cout<< run <<endl;
+
+           if (*run == 'd') {
+               int i = va_arg(args, int);
+               std::cout << i << '\n';
+               cout<< run <<endl;
+
+           } else if (*run == 's') {
+               char * s = va_arg(args, char*);
+               std::cout << s << '\n';
+               cout<< run <<endl;
+
+           }
+           ++run;
+       }
+    //analyze()
+}
+
+void plotting(const char *anaFile, const char* cuts, int trig, int DUT ){
+    
+    //open anaFile
+    TFile* anaF = TFile::Open(anaFile);
+    TTree* anaTree = (TTree*) anaF->Get("wfm");
+ 
+    
+    TCanvas* c1;
+    TH1F *hbase = new TH1F("hbase","hbase", 100, -1, 1);
+    hbase->Draw();
+    char *timeRes= Form ("cfd%i[50]-cfd%i[50]>>h(100, -1,1)", DUT, trig);
+    anaTree->Draw(timeRes, cuts);
+    //h->Fit("gaus");
+    
+}
 
 
