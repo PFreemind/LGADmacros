@@ -335,18 +335,40 @@ void analyze_runs ( const char  *run, ...){
 
 void plotting(const char *anaFile, const char* cuts, int trig, int DUT ){
     
+    //open file for tabulating fit results
+    //...
+        
     //open anaFile
     TFile* anaF = TFile::Open(anaFile);
     TTree* anaTree = (TTree*) anaF->Get("wfm");
  
-    
+    //plot whatever you like (time res, rise time, etc) for DUT with cuts
+    //assumes measurements are on first DRS4 board
     TCanvas* c1;
     TH1F *hbase = new TH1F("hbase","hbase", 100, -1, 1);
     hbase->Draw();
     char *timeRes= Form ("cfd%i[50]-cfd%i[50]>>h(100, -1,1)", DUT, trig);
     anaTree->Draw(timeRes, cuts);
-    //h->Fit("gaus");
+    //TF1 *fitT = new  TF1("fT", "gaus", "R+");
+    //h->Fit("fT");
+    // fT->GetFitParameters()
+    //write to file... python is looking more and more attractive...
+    
+    TCanvas* c2 = new TCanvas("c2");
+    //c2->cd();
+    TH1F *hRT = new TH1F("hRT","hRT", 100, 0, 2);
+    hbase->Draw();
+    char *riseTime= Form ("rise%i_1090[0]", DUT);
+    anaTree->Draw(riseTime, cuts);
+    
+    TCanvas* c3 = new TCanvas("c3");
+    // c3->cd();
+    char *PTtrig= Form ("pmax%i[0]:tmax%i[0]>>h2(1024, 0, 204.8, 100, 0 ,0.55)", trig, trig);
+    anaTree->Draw(PTtrig, cuts,"colz");
+
+    TCanvas* c4 = new TCanvas("c4");
+    c4->cd();
+    char *PTDUT= Form ("pmax%i[0]:tmax%i[0]>>h2d(1024, 0, 204.8, 100, 0 ,0.55)", DUT, DUT);
+    anaTree->Draw(PTDUT, cuts, "colz");
     
 }
-
-
