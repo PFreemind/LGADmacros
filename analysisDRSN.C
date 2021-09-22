@@ -53,6 +53,7 @@ void analyze(const char* path, const char* output, int ch1, int ch2, int ch3, in
         TBranch *brise1_1090 = new_tree->Branch("rise1_1090",&rise1_1090);
         TBranch *bdvdt1 = new_tree->Branch("dvdt1",&dvdt1);
         TBranch *bt01 = new_tree->Branch("t01",&t01);
+        TBranch *btot1 = new_tree->Branch("tot1",&tot1);
         loadTree->SetBranchAddress("c1",&w1f, &b_w1f);
     }
     //channel 2 branches_____________________________________
@@ -71,6 +72,7 @@ void analyze(const char* path, const char* output, int ch1, int ch2, int ch3, in
         TBranch *brise2_1090 = new_tree->Branch("rise2_1090",&rise2_1090);
         TBranch *bdvdt2 = new_tree->Branch("dvdt2",&dvdt2);
         TBranch *bt02 = new_tree->Branch("t02",&t02);
+        TBranch *btot2 = new_tree->Branch("tot2",&tot2);
         loadTree->SetBranchAddress("c2",&w2f, &b_w2f);
     }
     //channel 3 branches_____________________________________
@@ -89,6 +91,7 @@ void analyze(const char* path, const char* output, int ch1, int ch2, int ch3, in
         TBranch *brise3_1090 = new_tree->Branch("rise3_1090", &rise3_1090);
         TBranch *bdvdt3 = new_tree->Branch("dvdt3", &dvdt3);
         TBranch *bt03 = new_tree->Branch("t03",&t03);
+        TBranch *btot3 = new_tree->Branch("tot3",&tot3);
         loadTree->SetBranchAddress("c3",&w3f, &b_w3f);
     }
     //channel 4 branches_____________________________________
@@ -107,6 +110,7 @@ void analyze(const char* path, const char* output, int ch1, int ch2, int ch3, in
         TBranch *brise4_1090 = new_tree->Branch("rise4_1090", &rise4_1090);
         TBranch *bdvdt4 = new_tree->Branch("dvdt4", &dvdt4);
         TBranch *bt04 = new_tree->Branch("t04",&t04);
+        TBranch *btot4 = new_tree->Branch("tot4",&tot4);
         loadTree->SetBranchAddress("c4",&w4f, &b_w4f);
     }
     
@@ -160,6 +164,7 @@ void analyze(const char* path, const char* output, int ch1, int ch2, int ch3, in
                rise1_1090.push_back( rise_time(points, t1V, w1V, 0.1, 0.9) );
                dvdt1.push_back( pulse_dvdt_cfd(points, 20, 1, t1V, w1V) );
                t01.push_back(th_t0(points, t1V, w1V,5) );
+               tot1.push_back(ToT(points, t1V, w1V,threshold) );
             }
             if(ch2 == 2)
             {
@@ -176,6 +181,8 @@ void analyze(const char* path, const char* output, int ch1, int ch2, int ch3, in
                rise2_1090.push_back(rise_time(points, t2V, w2V,0.10,0.9 ) );
                dvdt2.push_back( pulse_dvdt_cfd(points, 20, 1, t2V, w2V) );
                t02.push_back(th_t0(points, t2V, w2V,5) );
+               tot2.push_back(ToT(points, t2V, w2V,threshold) );
+
             }
             if(ch3 == 3)
             {
@@ -191,6 +198,8 @@ void analyze(const char* path, const char* output, int ch1, int ch2, int ch3, in
                rise3_1090.push_back( rise_time(points, t3V, w3V, 0.1, 0.9) );
                dvdt3.push_back( pulse_dvdt_cfd(points, 20, 1, t3V, w3V) );
                t03.push_back(th_t0(points, t3V, w3V,5) );
+               tot3.push_back(ToT(points, t3V, w3V,threshold) );
+
             }
             if(ch4 == 4)
             {
@@ -207,6 +216,8 @@ void analyze(const char* path, const char* output, int ch1, int ch2, int ch3, in
                rise4_1090.push_back( rise_time(points, t4V, w4V,0.10,0.9 ) );
                dvdt4.push_back( pulse_dvdt_cfd(points, 20, 1, t4V, w4V) );
                t04.push_back(th_t0(points,t4V, w4V,5) );
+               tot4.push_back(ToT(points, t4V, w4V,threshold) );
+
            //    for(int i = 0; i < points; i++){w4[i] = -1.0*w4[i]; wbase4[i]=-1.0*wbase4[i];}
            //     if(ch1 == 1){w1.push_back( w1V ); t1.push_back( t1V ); wbase1.push_back( wbase1V );}
             //    if(ch2 == 2){w2.push_back( w2V); t2.push_back(  t2V); wbase2.push_back( wbase2V);}
@@ -240,6 +251,8 @@ void analyze(const char* path, const char* output, int ch1, int ch2, int ch3, in
         rise1_1090.clear();
         dvdt1.clear();
         t01.clear();
+        tot1.clear();
+
     //    wbase1.clear();
         
         w2.clear();
@@ -253,6 +266,8 @@ void analyze(const char* path, const char* output, int ch1, int ch2, int ch3, in
         rise2_1090.clear();
         dvdt2.clear();
         t02.clear();
+        tot2.clear();
+
 //        wbase2.clear();
         
         w3.clear();
@@ -266,6 +281,8 @@ void analyze(const char* path, const char* output, int ch1, int ch2, int ch3, in
         rise3_1090.clear();
         dvdt3.clear();
         t03.clear();
+        tot3.clear();
+
    //     wbase3.clear();
         
         w4.clear();
@@ -279,6 +296,8 @@ void analyze(const char* path, const char* output, int ch1, int ch2, int ch3, in
         rise4_1090.clear();
         dvdt4.clear();
         t04.clear();
+        tot4.clear();
+
     //    wbase4.clear();
 
     }//entries/nBoards loop

@@ -55,14 +55,14 @@ std::vector<double> b0, b1, b2, b3, b4, b5;
 std::vector<double> x1, x2, y11, y2;
 std::pair<double,double> noise2, noise3;
 std::pair<double,double> baseline2, baseline3;
-
+double threshold = 0.04;
 //new Tfile and tree generation.
 
 //////////////////////
 
 
 //////variables
-std::vector<double>  pmax0, tmax0, rise0_1040, rise0_1090, pulse_area0, rms0, dvdt0,  t01;
+std::vector<double>  pmax0, tmax0, rise0_1040, rise0_1090, pulse_area0, rms0, dvdt0,  t01, tot1, tot2, tot3, tot4;
 std::vector<double>  pmax1, tmax1, rise1_1040, rise1_1090, pulse_area1, rms1, dvdt1,  t02;
 std::vector<double>  pmax2, tmax2, rise2_1040, rise2_1090, pulse_area2, rms2, dvdt2,  t03;
 std::vector<double>  pmax3, tmax3, rise3_1040, rise3_1090, pulse_area3, rms3, dvdt3,  t04;
@@ -302,6 +302,23 @@ double cfd_index(int npoints, int fraction, std::vector<double> t, std::vector<d
     return time_fraction;
 }
 
+
+double ToT( int npoints, std::vector<double> t, std::vector<double> w, double threhsold){// number of data points in event, time vector, voltage vector, termination resisitace in ohms, effective gain from amplifier(s)
+    //calculate time over threshold (ToT)
+    
+    double pulse_area = 0.0, time_difference, pmax =0; int imax =  0, istart = 0, iend = 0; // collected charge, size of time bins; pulse max, index of pulse max, start and end. Start and and end defined as index of first points before and after max that are less than or equal to zero.
+    //NEED to add better baseline correction!///////////////
+    time_difference = t[1] - t[0];
+    for( int j = 0; j < npoints; j++){      if(w[j] > pmax){imax = j; pmax = w[j];}    } // find index of pulse maximum
+    for( int j = imax; j>-1; j--){     if(w[j] <= threshold){ istart = j+1; break;}  } // find index of start of pulse
+    for( int j = imax; j< npoints; j++){     if(w[j] <= threshold){ iend = j-1; break;}  } // find index of end of pulse
+    if (istart ==0){ return 0;}
+    
+    double tot = t[iend] - t[istart];
+    return tot; // collected charge in Coulombs, assuming termination is in ohms and voltage is in volts, time is in seconds
+}
+
+
 double cfd_index_discrete(int npoints, int fraction, std::vector<double> t, std::vector<double> w){
     // function to calculate index of constant fraction - not truly a constant fraction discriminator
     double pmax = 0, time_fraction = 0;
@@ -392,7 +409,7 @@ double th_t0( int npoints, std::vector<double> t, std::vector<double> w, double 
     {
         if(w[j]<thresh)
         {
-            itop=j;     //find the index of point just below threhsold
+            itop=j;     //find the index of point just below threshold
             break;
         }
     }
