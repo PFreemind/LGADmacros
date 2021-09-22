@@ -325,31 +325,25 @@ void analyze(const char* path, const char* output, int ch1, int ch2, int ch3, in
     delete new_file, new_tree, amplitude1, amplitude2, amplitude3, amplitude4;
 }
 
+void analyze_runs ( const char *path, int nRun, ...){
 
-void analyze_runs ( const char  *run, ...){
-    cout<< run <<endl;
-
-    
-    va_list args;
-    va_start(args, run);
-
-       while (*run != '\0') {
-           cout<< run <<endl;
-
-           if (*run == 'd') {
-               int i = va_arg(args, int);
-               std::cout << i << '\n';
-               cout<< run <<endl;
-
-           } else if (*run == 's') {
-               char * s = va_arg(args, char*);
-               std::cout << s << '\n';
-               cout<< run <<endl;
-
-           }
-           ++run;
-       }
-    //analyze()
+    va_list argptr;
+    va_start(argptr, nRun);
+    int i{0};
+    char *run;
+    char *processed;
+    char *analyzed;
+    while (i<nRun){
+        run = va_arg (argptr, char*);
+        processed = Form("%s/processed/run%s.root",path,run);
+        analyzed =Form("%s/analyzed/run%s_ana.root",path,run);
+        cout<< "running anlysis for run " << run <<endl;
+        cout<<"processed run file to be read "<<processed <<endl;
+        cout<<"analyzed run file to be written "<<analyzed <<endl;
+        analyze(processed,analyzed,1,2,3,4,4);
+        i++;
+    }
+    va_end(argptr);
 }
 
 void plotting(const char *anaFile, const char* cuts, int trig, int DUT ){
