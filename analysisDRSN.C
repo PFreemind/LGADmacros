@@ -350,39 +350,47 @@ void analyze_runs ( const char *path, int nRun, ...){
     va_end(argptr);
 }
 
-void plotting(const char *anaFile, const char* cuts, int trig, int DUT, const char* run ){
+void plotting(const char *anaPath, const char* cuts, int trig, int DUT, const char* run ){
     
     //open file for tabulating fit results
     //...
     std::ofstream sumFile;
     sumFile.open(Form("/data/LGADwaveforms/TB/plotting/run_%s.csv", run));
-    
-    
-        
-        
+ 
     //open anaFile
+    const char* anaFile = Form("%s/run%s_ana.root",anaPath,run);
     TFile* anaF = TFile::Open(anaFile);
     TTree* anaTree = (TTree*) anaF->Get("wfm");
+    
+    gStyle->SetOptFit(1);
+    gStyle->SetOptTitle(0);
  
     //plot whatever you like (time res, rise time, etc) for DUT with cuts
     //assumes measurements are on first DRS4 board
     TCanvas* c1;
-    TH1F *hbase = new TH1F("hbase","hbase", 100, -1, 1);
-    hbase->Draw();
-    char *timeRes= Form ("cfd%i[50]-cfd%i[50]>>h(100, -1,1)", DUT, trig);
+    TH1F *h = new TH1F("h","h", 100, -1, 1);
+    char *timeRes= Form ("cfd%i[20]-cfd%i[50]>>h", DUT, trig);
     anaTree->Draw(timeRes, cuts);
-    //TF1 *fitT = new  TF1("fT", "gaus", "R+");
-    //h->Fit("fT");
-    // fT->GetFitParameters()
+    TF1 *fT = new  TF1("fT", "gaus",-1, 1 ,"R+");
+    h->Fit("fT");
+    sumFile<<"timeRes[ns]"<<fT->GetParameter(2)<<","<<fT->GetParError(2)<<endl;
     //write to file... python is looking more and more attractive...
     
     TCanvas* c2 = new TCanvas("c2");
     //c2->cd();
     TH1F *hRT = new TH1F("hRT","hRT", 100, 0, 2);
-    hbase->Draw();
     char *riseTime= Form ("rise%i_1090[0]>>hRT", DUT);
     anaTree->Draw(riseTime, cuts);
-    sumFile<<hRT->GetMean()<<endl;
+    hRT->Fit("fT","R+","",0,2);
+    sumFile<<"riseTime[ns]"<<fT->GetParameter(1)<<","<<fT->GetParError(1)<<endl;
+    
+    TCanvas* c5 = new TCanvas("c5");
+    TH1F *hP = new TH1F("hP","hP", 100, 0, 0.5);
+    char *amp= Form ("pmax%i[0]>>hP", DUT);
+    anaTree->Draw(amp, cuts);
+    TF1 *fP = new  TF1("fP", "landau",0, 0.5, "R+");
+    hP->Fit("fP","R+","",0,0.5);
+    sumFile<<"timeRes[ns]"<<fP->GetParameter(1)<<","<<fP->GetParError(1)<<endl;
     
     TCanvas* c3 = new TCanvas("c3");
     // c3->cd();
