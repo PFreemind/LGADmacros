@@ -38,7 +38,7 @@ void analyze(const char* path, const char* output, int ch1, int ch2, int ch3, in
     
     //channel 1 branches_____________________________________
     TBranch *bboard0 = new_tree->Branch("board0", &board0);
-    TBranch *trigID = new_tree->Branch("trigID",&trigID);
+    TBranch *btrigID = new_tree->Branch("trigID",&trigID);
 
     if(ch1 == 1)
     {
@@ -151,7 +151,7 @@ void analyze(const char* path, const char* output, int ch1, int ch2, int ch3, in
                         cout<< " The board number is "<<boardf<<endl;
                    }
             board0.push_back(boardf);
-            trigID.push_back(getTrigID());
+            trigID.push_back(0);//getTrigID());
 
             if(ch1 == 1)
             {
@@ -355,7 +355,7 @@ void plotting(const char *anaFile, const char* cuts, int trig, int DUT, const ch
     //open file for tabulating fit results
     //...
     std::ofstream sumFile;
-    open sumFile(Form("/data/LGADwaveforms/TB/plotting/run_%s.csv"));
+    sumFile.open(Form("/data/LGADwaveforms/TB/plotting/run_%s.csv", run));
     
     
         

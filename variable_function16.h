@@ -412,7 +412,7 @@ int getTrigID(std::vector<double> LSBt, std::vector<double> LSBv, std::vector<do
     //assumes 5GS/s from DRS4
     //find the first leading edge
    //check value after 12.5 ns
-    std::binry bitstream;
+   // std::binry bitstream;
     for (int i{0}; i<8;i++){
         //should really do time
         int bit0 = int( (LSBv.at(int((12.5+double(i)*25.0)/0.2) -1) + LSBv.at(int((12.5+double(i)*25.0)/0.2)) + LSBv.at(int((12.5+double(i)*25.0)/0.2)+1)) /level/3.0);//average of three points
@@ -420,9 +420,9 @@ int getTrigID(std::vector<double> LSBt, std::vector<double> LSBv, std::vector<do
         //catch b
     
     
+    }
     
-    
-    
+    return 0;
 }
 
 #endif // #ifdef anal_cxx
