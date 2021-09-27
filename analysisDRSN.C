@@ -38,6 +38,8 @@ void analyze(const char* path, const char* output, int ch1, int ch2, int ch3, in
     
     //channel 1 branches_____________________________________
     TBranch *bboard0 = new_tree->Branch("board0", &board0);
+    TBranch *trigID = new_tree->Branch("trigID",&trigID);
+
     if(ch1 == 1)
     {
         cout << "ch 1 is created." << endl;
@@ -149,6 +151,8 @@ void analyze(const char* path, const char* output, int ch1, int ch2, int ch3, in
                         cout<< " The board number is "<<boardf<<endl;
                    }
             board0.push_back(boardf);
+            trigID.push_back(getTrigID());
+
             if(ch1 == 1)
             {
                int points = w1V.size();
@@ -346,10 +350,15 @@ void analyze_runs ( const char *path, int nRun, ...){
     va_end(argptr);
 }
 
-void plotting(const char *anaFile, const char* cuts, int trig, int DUT ){
+void plotting(const char *anaFile, const char* cuts, int trig, int DUT, const char* run ){
     
     //open file for tabulating fit results
     //...
+    std::ofstream sumFile;
+    open sumFile(Form("/data/LGADwaveforms/TB/plotting/run_%s.csv"));
+    
+    
+        
         
     //open anaFile
     TFile* anaF = TFile::Open(anaFile);
@@ -371,8 +380,9 @@ void plotting(const char *anaFile, const char* cuts, int trig, int DUT ){
     //c2->cd();
     TH1F *hRT = new TH1F("hRT","hRT", 100, 0, 2);
     hbase->Draw();
-    char *riseTime= Form ("rise%i_1090[0]", DUT);
+    char *riseTime= Form ("rise%i_1090[0]>>hRT", DUT);
     anaTree->Draw(riseTime, cuts);
+    sumFile<<hRT->GetMean()<<endl;
     
     TCanvas* c3 = new TCanvas("c3");
     // c3->cd();
@@ -383,5 +393,13 @@ void plotting(const char *anaFile, const char* cuts, int trig, int DUT ){
     c4->cd();
     char *PTDUT= Form ("pmax%i[0]:tmax%i[0]>>h2d(1024, 0, 204.8, 100, 0 ,0.55)", DUT, DUT);
     anaTree->Draw(PTDUT, cuts, "colz");
+    
+    //cin to check plots
+    
+    
+    //delete variables for reuse?
+    
+    
+    sumFile.close();
     
 }

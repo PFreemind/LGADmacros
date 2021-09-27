@@ -48,6 +48,7 @@ TBranch *b_boardf;
 //double  w11[2000]; //pulses holder
 //std::vector<double> t0, t1, t2, t3, t4, t5, w0, w1, w2, w3, w4, w5;
 std::vector<int> board0;
+std::vector<int> trigID;
 std::vector<double> b0, b1, b2, b3, b4, b5;
 std::vector<double> x1, x2, y11, y2;
 std::pair<double,double> noise2, noise3;
@@ -406,6 +407,22 @@ double pulse_dvdt_cfd(int npoints, int fraction,   int ndif, std::vector<double>
 }
 
 
-
+int getTrigID(std::vector<double> LSBt, std::vector<double> LSBv, std::vector<double>  MSBt, std::vector<double> MSBv, double level ){
+    //fcn to convert bitstream to binry/decimal, assuming it is written in 8 bits per channel, 40 MHz
+    //assumes 5GS/s from DRS4
+    //find the first leading edge
+   //check value after 12.5 ns
+    std::binry bitstream;
+    for (int i{0}; i<8;i++){
+        //should really do time
+        int bit0 = int( (LSBv.at(int((12.5+double(i)*25.0)/0.2) -1) + LSBv.at(int((12.5+double(i)*25.0)/0.2)) + LSBv.at(int((12.5+double(i)*25.0)/0.2)+1)) /level/3.0);//average of three points
+        //cout bit
+        //catch b
+    
+    
+    
+    
+    
+}
 
 #endif // #ifdef anal_cxx
