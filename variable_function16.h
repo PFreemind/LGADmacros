@@ -407,22 +407,73 @@ double pulse_dvdt_cfd(int npoints, int fraction,   int ndif, std::vector<double>
 }
 
 
-int getTrigID(std::vector<double> LSBt, std::vector<double> LSBv, std::vector<double>  MSBt, std::vector<double> MSBv, double level ){
+int getTrigID(vector<double>  LSBt, vector<double>  LSBv, vector<double>  MSBt, vector<double>  MSBv, double level, double period = 25.0, double tOff = 0){
     //fcn to convert bitstream to binry/decimal, assuming it is written in 8 bits per channel, 40 MHz
     //assumes 5GS/s from DRS4
     //find the first leading edge
    //check value after 12.5 ns
    // std::binry bitstream;
+    int trigID = 0;
+    int bit{0};
+    double tstep = 0.2;
+    int begin{0};
+    double sum =0;
+    double count =0;
+    //find the first leading edge to calcuate offset mod tstep
+    int iOff = 0;
+    for (int i; i<LSBv.size(); i++ ){
+        if (LSBv.at(i)>0.5*level){
+            iOff= i;
+            break;
+        }
+    }
+    iOff = iOff%25;
+    //char* byte = malloc(8);
     for (int i{0}; i<8;i++){
         //should really do time
-        int bit0 = int( (LSBv.at(int((12.5+double(i)*25.0)/0.2) -1) + LSBv.at(int((12.5+double(i)*25.0)/0.2)) + LSBv.at(int((12.5+double(i)*25.0)/0.2)+1)) /level/3.0);//average of three points
+        begin = int( iOff + (double(i)*period) /tstep);
+      //  bit = round( (LSBv[center -1] + LSBv[center] + LSBv[center+1])*-1.0 /level/3.0);//average of three points
+        sum=0;
+        count=0;
+        for (int j{0};j<period/tstep-1;j++){
+            sum+=LSBv[begin+j]*-1;
+            count+=1;
+            if (begin+j*tstep>204.5){break;}
+        }
+        sum= sum/count/level;
+        bit = round(sum);
+    //    byte[i]= std::to_string(bit).c_str();
+       // cout<<bit;
+        trigID+= bit* pow(2,i);
         //cout bit
-        //catch b
-    
-    
+        //catch
+        //when the shift is nearly a full period, have to read the 8th bit on the other channel
+        //MSB stuff
+        //center = int( (period/2.0 +double(i)*period) /tstep +tOff1); //index of center point
+      //  cout<<"center: "<< center <<endl;
+       // cout<<"center value: "<< MSBv[center]<<endl;
+        //bit = round( (MSBv[center -1] + MSBv[center] + MSBv[center+1])*-1.0 /level/3.0);//average of three points
+       //    byte[i]= std::to_string(bit).c_str();
+        begin =  int( iOff + (double(i)*period + tOff) /tstep);;
+       // cout<<"the begin is "<<begin<<endl;
+            //  bit = round( (LSBv[center -1] + LSBv[center] + LSBv[center+1])*-1.0 /level/3.0);//average of three points
+        sum=0;
+        count=0;
+        for (int j{0};j< int(period/tstep)-1;j++){
+            sum+=MSBv[begin+j]*-1;
+            count+=1;
+            if (begin+j*tstep>204.5){break;}
+        }
+        sum= sum/count/level;
+        bit = round(sum);
+       // cout<<bit;
+          //    byte[i]= std::to_string(bit).c_str();
+        trigID+= bit* pow(2,i+8);
+           //cout bit
+           //catch
     }
-    
-    return 0;
+   // cout<<endl<<"the ID is"<<trigID<<endl;
+    return trigID;
 }
 
 #endif // #ifdef anal_cxx

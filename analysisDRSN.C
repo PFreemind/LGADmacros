@@ -151,8 +151,11 @@ void analyze(const char* path, const char* output, int ch1, int ch2, int ch3, in
                         cout<< " The board number is "<<boardf<<endl;
                    }
             board0.push_back(boardf);
-            trigID.push_back(0);//getTrigID());
-
+            if (boardf == 2880){
+                trigID.push_back(getTrigID(t4V,w4V, t1V, w1V, 0.215));
+            }else{
+                trigID.push_back(0);
+            }
             if(ch1 == 1)
             {
                int points = w1V.size();
@@ -244,6 +247,7 @@ void analyze(const char* path, const char* output, int ch1, int ch2, int ch3, in
         //fill new tree and clear vectors
         new_tree->Fill();
         board0.clear();
+        trigID.clear();
         w1.clear();
         t1.clear();
         pmax1.clear();
