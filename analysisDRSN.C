@@ -392,7 +392,7 @@ void plotting(const char *anaPath, const char* cuts, int trig, int DUT, const ch
     TH1F *hP = new TH1F("hP","hP", 100, 0, 0.5);
     char *amp= Form ("pmax%i[0]>>hP", DUT);
     anaTree->Draw(amp, cuts);
-    TF1 *fP = new  TF1("fP", "landau",0, 0.5, "R+");
+    TF1 *fP = new  TF1("fP", "landau",0.18, 0.485, "R+");
     hP->Fit("fP","R+","",0,0.5);
     sumFile<<"timeRes[ns]"<<fP->GetParameter(1)<<","<<fP->GetParError(1)<<endl;
     
