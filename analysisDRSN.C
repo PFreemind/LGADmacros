@@ -152,7 +152,7 @@ void analyze(const char* path, const char* output, int ch1, int ch2, int ch3, in
                    }
             board0.push_back(boardf);
             if (boardf == 2880){
-                trigID.push_back(getTrigID(t4V,w4V, t1V, w1V, 0.215));
+                trigID.push_back(getTrigID(t4V,w4V, t1V, w1V, 0.215, 25.0, 39.0,17.0));
             }else{
                 trigID.push_back(0);
             }
