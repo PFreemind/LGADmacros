@@ -354,12 +354,13 @@ void analyze_runs ( const char *path, int nRun, ...){
     va_end(argptr);
 }
 
+
 void plotting(const char *anaPath, const char* cuts, int trig, int DUT, const char* run ){
     
     //open file for tabulating fit results
     //...
     std::ofstream sumFile;
-    sumFile.open(Form("/data/LGADwaveforms/TB/plotting/run_%s.csv", run));
+    sumFile.open(Form("/data/LGADwaveforms/TB/plots/run_%s.csv", run));
  
     //open anaFile
     const char* anaFile = Form("%s/run%s_ana.root",anaPath,run);
@@ -377,7 +378,7 @@ void plotting(const char *anaPath, const char* cuts, int trig, int DUT, const ch
     anaTree->Draw(timeRes, cuts);
     TF1 *fT = new  TF1("fT", "gaus",-1, 1 ,"R+");
     h->Fit("fT");
-    sumFile<<"timeRes[ns]"<<fT->GetParameter(2)<<","<<fT->GetParError(2)<<endl;
+    sumFile<<"timeRes[ns],"<<fT->GetParameter(2)<<","<<fT->GetParError(2)<<endl;
     //write to file... python is looking more and more attractive...
     
     TCanvas* c2 = new TCanvas("c2");
@@ -386,15 +387,23 @@ void plotting(const char *anaPath, const char* cuts, int trig, int DUT, const ch
     char *riseTime= Form ("rise%i_1090[0]>>hRT", DUT);
     anaTree->Draw(riseTime, cuts);
     hRT->Fit("fT","R+","",0,2);
-    sumFile<<"riseTime[ns]"<<fT->GetParameter(1)<<","<<fT->GetParError(1)<<endl;
+    sumFile<<"riseTime[ns],"<<fT->GetParameter(1)<<","<<fT->GetParError(1)<<endl;
     
     TCanvas* c5 = new TCanvas("c5");
     TH1F *hP = new TH1F("hP","hP", 100, 0, 0.5);
     char *amp= Form ("pmax%i[0]>>hP", DUT);
     anaTree->Draw(amp, cuts);
     TF1 *fP = new  TF1("fP", "landau",0.18, 0.485, "R+");
-    hP->Fit("fP","R+","",0,0.5);
-    sumFile<<"timeRes[ns]"<<fP->GetParameter(1)<<","<<fP->GetParError(1)<<endl;
+    hP->Fit("fP","R+","",0.2,0.485);
+    sumFile<<"amplitude[mV],"<<fP->GetParameter(1)<<","<<fP->GetParError(1)<<endl;
+    
+    TCanvas* c6 = new TCanvas("c6");
+    TH1F *hC = new TH1F("hC","hC", 400, 0, 5e-10);
+    char *charge= Form ("pulse_area%i[0]>>hC", DUT);
+    anaTree->Draw(charge, cuts);
+    TF1 *fC = new  TF1("fC", "landau",4e-11, 1.4e-10, "R+");
+    hC->Fit("fC","R+","",4e-11, 1.6e-10);
+    sumFile<<"charge[C],"<<fC->GetParameter(1)<<","<<fP->GetParError(1)<<endl;
     
     TCanvas* c3 = new TCanvas("c3");
     // c3->cd();
@@ -406,12 +415,27 @@ void plotting(const char *anaPath, const char* cuts, int trig, int DUT, const ch
     char *PTDUT= Form ("pmax%i[0]:tmax%i[0]>>h2d(1024, 0, 204.8, 100, 0 ,0.55)", DUT, DUT);
     anaTree->Draw(PTDUT, cuts, "colz");
     
-    //cin to check plots
-    
-    
-    //delete variables for reuse?
-    
-    
-    sumFile.close();
-    
+    sumFile.close();   
 }
+
+void plot_runs ( const char *path, const char *cuts, int trig, int DUT, int nRun, ...){
+    gROOT->SetBatch(1);
+    va_list argptr;
+    va_start(argptr, nRun);
+    int i{0};
+    char *run;
+   // char *processed;
+    char *analyzed;
+    while (i<nRun){
+        run = va_arg (argptr, char*);
+       // processed = Form("%s/processed/run%s.root",path,run);
+        analyzed =Form("%s/analyzed/run%s_ana.root",path,run);
+        cout<< "running anlysis for run " << run <<endl;
+      //  cout<<"processed run file to be read "<<processed <<endl;
+        cout<<"analyzed run file to be read "<<analyzed <<endl;
+        plotting(path,cuts, trig, DUT, run);
+        i++;
+    }
+    va_end(argptr);
+}
+

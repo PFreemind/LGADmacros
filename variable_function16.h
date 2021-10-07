@@ -240,9 +240,9 @@ double pulse_area( int npoints, std::vector<double> t, std::vector<double> w, in
     if (istart ==0){ return 0;}
     
     for( int j = istart; j < iend + 1; j++){
-        pulse_area = pulse_area + w[j]/1000 * (t[j+1] - t[j-1])/2 ;
+        pulse_area = pulse_area + w[j] * (t[j+1] - t[j-1])/2 ; // /1000 for mV
     }
-    pulse_area = pulse_area /1E12;
+    pulse_area = pulse_area /1E9 /50; // divide by 1e9 for nanoseconds, 50 for 50 ohm termination
     return pulse_area; // collected charge in Coulombs, assuming termination is in ohms and voltage is in volts, time is in seconds
 }
 
