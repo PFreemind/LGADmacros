@@ -1,10 +1,14 @@
 
 #!/bin/bash
-export LGAD_PATH="../LGADwaveforms/TB/"
-for RUN in 0008
+export LGAD_PATH="/data/LGADwaveforms/TB/"
+for RUN in 0053 0054 0055 0056 0057 0058 0059 0060 0061 0062 0063 0064 0065 0066 0067 0068 0069 0070 0071 0072 0073 0074 0075 0076 0077
 do
   #./read_binary raw/run+$RUN processed/run+$RUN+.root
   export CMD="./read_binary ${LGAD_PATH}/raw/run${RUN} ${LGAD_PATH}/processed/run${RUN}.root"
+  export CMD2="tar -czvf ${LGAD_PATH}/raw/run${RUN}.tar.gz  ${LGAD_PATH}/raw/run${RUN} "
+  echo $CMD2
+  eval $CMD2
   echo $CMD
   eval $CMD
+
 done

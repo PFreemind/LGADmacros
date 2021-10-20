@@ -151,8 +151,8 @@ void analyze(const char* path, const char* output, int ch1, int ch2, int ch3, in
                         cout<< " The board number is "<<boardf<<endl;
                    }
             board0.push_back(boardf);
-            if (boardf == 2880){
-                trigID.push_back(getTrigID(t4V,w4V, t1V, w1V, 0.215, 25.0, 39.0,17.0));
+            if (boardf == 2781){
+                trigID.push_back(getTrigID(w4V,w1V, 0.24, 25.0, 0.2, 10.0,17.0));
             }else{
                 trigID.push_back(0);
             }
@@ -403,7 +403,7 @@ void plotting(const char *anaPath, const char* cuts, int trig, int DUT, const ch
     anaTree->Draw(charge, cuts);
     TF1 *fC = new  TF1("fC", "landau",4e-11, 1.4e-10, "R+");
     hC->Fit("fC","R+","",4e-11, 1.6e-10);
-    sumFile<<"charge[C],"<<fC->GetParameter(1)<<","<<fP->GetParError(1)<<endl;
+    sumFile<<"charge[C],"<<fC->GetParameter(1)<<","<<fC->GetParError(1)<<endl;
     
     TCanvas* c3 = new TCanvas("c3");
     // c3->cd();

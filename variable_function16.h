@@ -406,94 +406,41 @@ double pulse_dvdt_cfd(int npoints, int fraction,   int ndif, std::vector<double>
 }
 
 
-int getTrigID(vector<double>  LSBt, vector<double>  LSBv, vector<double>  MSBt, vector<double>  MSBv, double level, double period = 25.0, double tOff = 25.0, double tOff1 = 14.0){
+int getTrigID(vector<double>  trig, vector<double>  LSBv, double level, double period = 25.0, double tstep = 0.2, double tOff = 10.0, double tOff1 = 14.0){
     //fcn to convert bitstream to binry/decimal, assuming it is written in 8 bits per channel, 40 MHz
     //assumes 5GS/s from DRS4
     //find the first leading edge
    //check value after 12.5 ns
-   // std::binry bitstream;
     int trigID = 0;
     int bit{0};
-    double tstep = 0.2;
     int begin{0};
     double sum =0;
     double count =0;
-    //find the first leading edge to calcuate offset mod tstep
+    //find the first leading edge to calcuate offset
     int iOff = 0;
-    for (int i{0}; i<LSBv.size(); i++ ){
-        if (LSBv.at(i)*-1.0>0.5*level){
+    for (int i{0}; i<trig.size()-1; i++ ){
+        if (trig.at(i)*-1.0>0.5*level && trig.at(i+1)*-1.0<0.5*level ){
             iOff= i;
             break;
         }
     }
-   // cout<<iOff*tstep<<endl;
-    if (iOff*tstep>25) {
-        iOff = iOff%int(25.0/tstep);
-        if (iOff*tstep<16){iOff = iOff+int(25/tstep);}
-    }
-    //concat vectors
-  //  LSBv.insert(LSBv.end(),MSBv.begin(), MSBv.end());
-    //char* byte = malloc(8);
     int center{0};
     int bytes[16];
-    for (int i{0}; i<8;i++){
-        //should really do time
-       // begin = int( iOff + (double(i)*period) /tstep);
-        center = int(tOff/tstep + double(i)*period/tstep );
-      //  cout<<center*tstep<<endl;
+    for (int i{0}; i<7;i++){
+        center = int(tOff/tstep + double(i)*period/tstep +iOff);
+       // cout<<center*tstep<<endl;
         if (i>7){begin = begin +tOff/tstep;}
-        
         if( center <1023) {
             bit = round( (LSBv[center -1] + LSBv[center] + LSBv[center+1])*-1.0 /level/3.0);//average of three points
-        }else {bit = round( (MSBv[0] + MSBv[1] + MSBv[2])*-1.0 /level/3.0);}
+        }else {bit = round( (LSBv.at(LSBv.size()-1) )*-1.0 /level/1.0);}
         sum=0;
         count=0;
-       /* for (int j{0};j<30;j++){
-            sum+=LSBv[begin+j]*-1;
-            count+=1;
-            if (begin+j*tstep>409){break;}
-        }
-       // if( sum<0){sum=0;}
-        sum= sum/count/level;
-        bit = round(sum);*/
         bytes[i]=bit;
-    //    byte[i]= std::to_string(bit).c_str();
        // cout<<bit;
-        trigID+= bit* pow(2,i);
-        //cout bit
-        //catch
-        //when the shift is nearly a full period, have to read the 8th bit on the other channel
-        //MSB stuff
-        //center = int( (period/2.0 +double(i)*period) /tstep +tOff1); //index of center point
-      //  cout<<"center: "<< center <<endl;
-       // cout<<"center value: "<< MSBv[center]<<endl;
-        //bit = round( (MSBv[center -1] + MSBv[center] + MSBv[center+1])*-1.0 /level/3.0);//average of three points
-       //    byte[i]= std::to_string(bit).c_str();
-       // begin =  int( iOff + (double(i)*period + tOff) /tstep);
-        center =  int(tOff1/tstep + i*period/tstep );
-        if (begin<0) begin=0;
-       // if (i==0){cout<<begin<<endl;}
-  
-       // cout<<"the begin is "<<begin<<endl;
-        bit = round( (MSBv[center -1] + MSBv[center] + MSBv[center+1])*-1.0 /level/3.0);//average of three points
-        /*sum=0;
-        count=0;
-        for (int j{0};j< int(period/tstep)-1;j++){
-            sum+=MSBv[begin+j]*-1;
-            count+=1;
-            if (begin+j*tstep>204.5){break;}
-        }
-        sum= sum/count/level;
-        bit = round(sum);*/
-        bytes[i+8]=bit;
-       // cout<<bit;
-          //    byte[i]= std::to_string(bit).c_str();
-        trigID+= bit* pow(2,i+8);
-           //catch
-        
+        trigID+= bit* pow(2,i); 
     }
-  //  for(int i{0};i<16;i++) cout <<bytes[i];
-    //cout<<endl<<"the ID is"<<trigID<<endl;
+  //  for(int i{0};i<7;i++) cout <<bytes[i];
+  //  cout<<endl<<"the ID is "<<trigID<<endl;
     return trigID;
 }
 
@@ -589,6 +536,7 @@ int getTrigID2(vector<double>  LSBt, vector<double>  LSBv, vector<double>  MSBt,
     cout<<endl<<"the ID is"<<trigID<<endl;
     return trigID;
 }
+
 
 
 #endif // #ifdef anal_cxx
