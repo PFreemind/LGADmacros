@@ -15,7 +15,7 @@
    and fed into channels #1 and #2. It then calculates the time difference
    between these two pulses to show the performance of the DRS board
    for time measurements.
-
+p
    $Id: read_binary.cpp 22290 2016-04-27 14:51:37Z ritt $
 */
 
@@ -114,7 +114,7 @@ int main(int argc, const char * argv[])
    const int ncellMax = 1030;
    double c1[ncellMax], t1[ncellMax];	//variable size array
    double c2[ncellMax], t2[ncellMax];
-   double c3[ncellMax], t3[ncellMax];
+   double c3[ncellMax], t3[ncellMax], clock;
    int board;
 //------for other channels 
    double c4[ncellMax], t4[ncellMax];
@@ -132,6 +132,7 @@ int main(int argc, const char * argv[])
     
    rtree->Branch("c4", c4, "c4[ncell]/D");
    rtree->Branch("t4", t4, "t4[ncell]/D");
+   rtree->Branch("clock", &clock, "clock/D");
 
    rtree->Branch("board", &board, "board/I");
 
@@ -213,7 +214,7 @@ int main(int argc, const char * argv[])
       if ( !(eh.event_serial_number%100) ) {
 	 printf("Found event #%d\n", eh.event_serial_number);
       }
-      
+      clock = eh.year * 365.*3600.*24.+ eh.month*30.*3600.*24.+ eh.day*3600.*24.+eh.hour*3600+eh.minute*60+eh.second+eh.millisecond*0.001;
       // loop over all boards in data file
       for (b=0 ; b<n_boards ; b++) {
          
@@ -234,6 +235,7 @@ int main(int argc, const char * argv[])
          if (n_boards > 1&& !(eh.event_serial_number%100) )
             printf("Found data for board #%d\n", bh.board_serial_number);
          board = bh.board_serial_number;
+          
          // reach channel data
          for (chn=0 ; chn<4 ; chn++) {
             
