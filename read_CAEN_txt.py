@@ -5,21 +5,21 @@ import argparse
 #source root before running:  source /opt/root/bin/thisroot.sh 
 #written for ROOT with python 3.8, earlier python versions may not work (though likely will)
 
-def geti0(c, imax, pmax, cfd = 50., timeBin = 0.4):
+def geti0(c, imax, pmax, cfd = 50., timeBin = 0.4): #returns interpolated index of cfd crossing time
   i0 = imax
-  deltai=0
+  deltai=0.
   epsilon = 0.0000000001
   for i in range(imax):
-     if c[imax -i] < float(cfd/100.)*pmax:
+     if c[imax -i] < float(cfd/100.)*c[imax]:
        i0 = imax -i 
        delta = c[i0+1] - c[i0] +epsilon #voltage difference between successive points, epsilon added to avoid division by 0 (though this should be impossile given the conditional?)
-       delta50 = (pmax*cfd/100. - c[i0]) #votlage difference between 50% mark
-       deltai =   delta50/delta
+       deltaCFD = (c[imax]*cfd/100. - c[i0]) #votlage difference between CFD point
+       deltai =   deltaCFD/delta
        break 
   i0 = float(i0) +deltai # interpolation is a little buggy, fix this later
   return i0
 
-def read_single_caen(inF, output,  iteration, polarity, timeBin = 0.4, ):
+def read_single_caen(inF, output,  iteration, polarity, timeBin = 0.4, binary = False ):
     #use arparser here...
     #hard-coded for now...
     outfile = ROOT.TFile(output, 'RECREATE')
@@ -40,6 +40,13 @@ def read_single_caen(inF, output,  iteration, polarity, timeBin = 0.4, ):
 
     f = open(inF, 'r')
     lines = f.readlines()
+    if binary: 
+      with open(inF, "rb") as f:
+        byte = f.read(1)
+        while byte:
+          # Do stuff with byte.
+          byte = f.read(1)
+          i=i+1
 
     for i in range(1024):
         t[i]=( (timeBin *i))
