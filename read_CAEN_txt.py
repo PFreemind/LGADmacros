@@ -2,6 +2,9 @@ import ROOT
 from array import array
 import statistics
 import argparse
+from numpy import fromfile, dtype
+import numpy as np
+import matplotlib.pyplot as plt
 #source root before running:  source /opt/root/bin/thisroot.sh 
 #written for ROOT with python 3.8, earlier python versions may not work (though likely will)
 
@@ -107,10 +110,10 @@ def getTrigID(c, t0, level = 350., timeBin = 0.4): #funciton to read bitstream o
     for i in range(7): # read 7 bits for now
        i0 = int( (t0 + 25./2. + 25. *i)/timeBin) # int( (t0 + 25./2.)/timeBin) +63*i#
        if i0 >1021: i0 = 1021
-   #    print("i0 is "+str(i0)+", the time value is "+str(c[i0]) )
+    #   print("i0 is "+str(i0)+", the value is "+str(c[i0]) )
        bit = round ((c[i0-1]+c[i0]+c[i0+1])/3/level) #statistics.mean(c[i0-2:i0+2])  / level  ) # mean of the center of the bitstream Vpp
        trigID = trigID + bit * pow(2, i)
-   # print ("the triggerID is:"+str(trigID))
+    #print ("the triggerID is:"+str(trigID))
     return int(trigID)
        
 def addTrigID(merged, trigch, trigIDch, timeBin = 0.4):#function to add trigger IDs to merged trees
@@ -135,7 +138,7 @@ def addTrigID(merged, trigch, trigIDch, timeBin = 0.4):#function to add trigger 
     IDTree.GetEntry(i)
     c = IDTree.c
   #  print(c[640])
-    trigID[0] = int(getTrigID(c,t0, 350., timeBin))
+    trigID[0] = int(getTrigID(c,t0, 1400., timeBin))
     #print(trigID)
     newtree.Fill()
   out.cd()
@@ -144,6 +147,55 @@ def addTrigID(merged, trigch, trigIDch, timeBin = 0.4):#function to add trigger 
   out.Close()
   f.Close()
 
+def read_caen_binary(inF, output,  iteration, polarity, timeBin = 0.4, ):
+    #use arparser here...
+    #hard-coded for now...
+    outfile = ROOT.TFile(output, 'RECREATE')
+    tree = ROOT.TTree('tree'+str( iteration),'tree'+str( iteration))
+    c = array('f', [0.]*1024)
+    temp = array('f', [0.]*1024)
+    t =  array('f', [0.]*1024)
+    pmax = array('f', [0.])
+    tmax = array('f', [0.])
+    t0 = array('f', [0.])
+    i0 = array('f', [0.])
+    
+    for i in range(1024): t[i]=( (timeBin *i))
+    
+    tree.Branch("t", t, "t[1024]/F")
+    tree.Branch("c", c, "c[1024]/F")
+    tree.Branch("pmax", pmax, "pmax/F")
+    tree.Branch("tmax", tmax, "tmax/F")
+    tree.Branch("t0", t0, "t0/F")
+    evt = 0
+    with  open(inF, 'rb') as f:#f = open(inF, 'rb')
+     while True:
+        try:
+          d = fromfile(f, dtype= dtype('<f'), count=1024)#i0, i1, i2, i3, i4, i5 = fromfile(f, dtype='I', count=6)
+        except:
+          print("no event, reached end of file ")
+          break
+        if (len(d) != 1024):
+          print("Event length is wrong")
+          break
+        d = np.multiply(d,polarity) #invert pulse
+        pedestal = statistics.mean(d[:50])
+        for j in range(1024):
+           c[j]= float(d[j])
+           c[j]= float(c[j]) - float(pedestal)
+        pmax[0] = max(c)
+        imax = c.index(pmax[0])
+        tmax[0] = timeBin* imax
+        i0 = geti0(c, imax, pmax[0])
+        t0[0] = i0*timeBin
+        tree.Fill()
+
+        evt = evt+1
+   
+       
+    f.close()
+    outfile.Write()
+    outfile.Close()
 #def cleanTrees() #function to read merged trees and combine in a single tree with new names for branches and c and t arrays removed
 #open file
 #loop over trees
@@ -152,11 +204,11 @@ def addTrigID(merged, trigch, trigIDch, timeBin = 0.4):#function to add trigger 
 # main part of code, to be executed
 #could do argparsing here for run, path, and time bin
 parser = argparse.ArgumentParser(description='convert .txt files from CAEN D5742')
-parser.add_argument('-r', '--run', type=str, help='the run number', default = '0117')
+parser.add_argument('-r', '--run', type=str, help='the run number, written as 4 digits with leading zeros (ex. 0117)', default = '0117')
 args = parser.parse_args()
 
 run = args.run#'0117'
-dpath = '/data/LGADwaveforms/TB/CAEN/Run'+run+'/'
+dpath = '../data/TB/CAEN//Run'+run+'/'  # '/data/LGADwaveforms/TB/CAEN/Run'+run+'/'
 timeBin = 0.4
 polarity = [-1,  #polarity of pulses 
 -1,
@@ -179,11 +231,14 @@ polarity = [-1,  #polarity of pulses
 
 # convert files to root files 
 
-read_single_caen(dpath+'TR_0_0.txt', dpath+'/run'+run+'_16.root', 16, polarity[16], timeBin) #trigger file
-for i in range(16):
-  read_single_caen(dpath+'wave_'+str(i)+'.txt', dpath+'/run'+run+'_'+str(i)+'.root', i, polarity[i], timeBin)
+#read_single_caen(dpath+'TR_0_0.txt', dpath+'/run'+run+'_16.root', 16, polarity[16], timeBin) #trigger file
 
-mergeCAEN(run)
+read_caen_binary(dpath+'TR_0_0.dat', dpath+'/run'+run+'_16.root', 16, polarity[16], timeBin)
+for i in range(16):
+  read_caen_binary(dpath+'wave_'+str(i)+'.dat', dpath+'/run'+run+'_'+str(i)+'.root', i, polarity[i], timeBin)
+
+mergeCAEN(run,'../data/TB/CAEN/' )
+
 addTrigID(dpath+'CAENmergerd_'+run+'.root', 16, 7 )
 
 #merge root files, renaming the branch c to c# or putting them in folders
@@ -194,37 +249,7 @@ addTrigID(dpath+'CAENmergerd_'+run+'.root', 16, 7 )
 
 #run analysis on each folder to get t0, tmax, pmax
 #get trig ID from a specific branch/channel
-'''
-def read_CAEN_binary(inF, output,  iteration, polarity, timeBin = 0.4, ):
-    #use arparser here...
-    #hard-coded for now...
-    outfile = ROOT.TFile(output, 'RECREATE')
-    tree = ROOT.TTree('tree'+str( iteration),'tree'+str( iteration))
-    c = array('f', [0.]*1024)
-    temp = array('f', [0.]*1024)
-    t =  array('f', [0.]*1024)
-    pmax = array('f', [0.])
-    tmax = array('f', [0.])
-    t0 = array('f', [0.])
-    i0 = array('f', [0.])
-    
-    tree.Branch("t", t, "t[1024]/F")
-    tree.Branch("c", c, "c[1024]/F")
-    tree.Branch("pmax", pmax, "pmax/F")
-    tree.Branch("tmax", tmax, "tmax/F")
-    tree.Branch("t0", t0, "t0/F")
 
-    f = open(inF, 'rb')
-    lines = f.readlines()
-    
-    try:
-    byte = f.read(1)
-    while byte != "":
-        # Do stuff with byte.
-        byte = f.read(1)
-    finally:
-      f.close()
-'''
 '''
 
     for i in range(1024):
@@ -278,7 +303,6 @@ finally:
 '''
  
   
-read_CAEN
   
 
 
