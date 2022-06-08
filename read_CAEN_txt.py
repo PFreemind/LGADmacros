@@ -19,12 +19,16 @@ timeBin = 0.4
 #read_single_caen(dpath+'TR_0_0.txt', dpath+'/run'+run+'_16.root', 16, polarity[16], timeBin) #trigger file
 
 dl.read_caen_binary(dpath+'TR_0_0.dat', dpath+'/run'+run+'_16.root', 16, dl.polarity[16], timeBin)
+#dl.read_caen_trig(dpath, 16, 7 )
 for i in range(16):
-  dl.read_caen_binary(dpath+'wave_'+str(i)+'.dat', dpath+'/run'+run+'_'+str(i)+'.root', i, dl.polarity[i], timeBin)
+  if i == 7:
+    dl.read_caen_binary(dpath+'wave_'+str(i)+'.dat', dpath+'/run'+run+'_'+str(i)+'.root', i, dl.polarity[i], timeBin, False, True,run)
+    continue
+  dl.read_caen_binary(dpath+'wave_'+str(i)+'.dat', dpath+'/run'+run+'_'+str(i)+'.root', i, dl.polarity[i], timeBin, False)
 
 dl.mergeCAEN(run,'../data/TB/CAEN/' )
 
-dl.addTrigID(dpath+'CAENmergerd_'+run+'.root', 16, 7 )
+#dl.addTrigID(dpath+'CAENmergerd_'+run+'.root', 16, 7 )
 
 
   

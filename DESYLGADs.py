@@ -140,9 +140,8 @@ def addTrigID(merged, trigch, trigIDch, timeBin = 0.4):#function to add trigger 
   out.Close()
   f.Close()
 
-def read_caen_binary(inF, output,  iteration, polarity, timeBin = 0.4, ):
-    #use arparser here...
-    #hard-coded for now...
+def read_caen_binary(inF, output,  iteration, polarity, timeBin = 0.4, wfm = True, isTrigID=False, run = '0204',trigch =16 ):
+    dpath = '../data/TB/CAEN//Run'+run+'/'
     outfile = ROOT.TFile(output, 'RECREATE')
     tree = ROOT.TTree('tree'+str( iteration),'tree'+str( iteration))
     c = array('f', [0.]*1024)
@@ -152,14 +151,22 @@ def read_caen_binary(inF, output,  iteration, polarity, timeBin = 0.4, ):
     tmax = array('f', [0.])
     t0 = array('f', [0.])
     i0 = array('f', [0.])
+    trigID = array('i', [0])
+    if isTrigID:
+      ft = ROOT.TFile(dpath+'run'+run+'_'+str(trigch)+'.root', 'READ')
+      trigtree = ft.Get('tree'+str(trigch))
+    
     
     for i in range(1024): t[i]=( (timeBin *i))
-    
-    tree.Branch("t", t, "t[1024]/F")
-    tree.Branch("c", c, "c[1024]/F")
     tree.Branch("pmax", pmax, "pmax/F")
     tree.Branch("tmax", tmax, "tmax/F")
     tree.Branch("t0", t0, "t0/F")
+    if wfm:
+      tree.Branch("t", t, "t[1024]/F")
+      tree.Branch("c", c, "c[1024]/F")
+    if isTrigID:
+      tree.Branch("trigID", trigID, "trigID/I")
+
     evt = 0
     with  open(inF, 'rb') as f:#f = open(inF, 'rb')
      while True:
@@ -181,8 +188,12 @@ def read_caen_binary(inF, output,  iteration, polarity, timeBin = 0.4, ):
         tmax[0] = timeBin* imax
         i0 = geti0(c, imax, pmax[0])
         t0[0] = i0*timeBin
+        if isTrigID:
+          trigtree.GetEntry(evt)
+          trigt0 = trigtree.t0 + 25
+          trigID[0] = int(getTrigID(c,trigt0, 1400., timeBin))
         tree.Fill()
-
+        
         evt = evt+1
    
        
